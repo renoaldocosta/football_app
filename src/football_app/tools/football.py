@@ -145,10 +145,3 @@ def retrieve_match_details(action_input:str) -> str:
         None
     )
     return match_details
-
-
-
-if __name__ == "__main__":
-    match_id = 22949
-    match_data = get_match_details_match_id(match_id)
-    print(match_data)
