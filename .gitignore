@@ -2,3 +2,4 @@ venv/
 .env
 .mypy_cache/
 notebook.ipynb
+__pycache__/
