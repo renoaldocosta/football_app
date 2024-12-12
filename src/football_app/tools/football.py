@@ -6,6 +6,9 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
 
+from football_stats.competitions import get_matches
+from football_stats.matches import get_lineups
+
 load_dotenv()
 
 def get_match_details_match_id(match_id: int) -> dict:
@@ -98,6 +101,51 @@ def get_sport_specialist_comments_about_match(match_details: str, line_ups: str)
     return chain.run(
         **input_variables
     )
+
+
+# Gera o comentário do especialista.
+def get_specialist_comments(action_input:str) -> str:
+    """
+    Provide an overview of the match and the match details.
+    Provide comments of a sports specialist about a specific match.
+    The specialist knows match details and lineups.
+    
+    Args:
+        - action_input(str): The input data containing the competition_id, season_id and match_id.
+          format: {
+              "competition_id": 123,
+              "season_id": 02,
+              "match_id": 12345
+            }
+    """
+    match_details = retrieve_match_details(action_input)
+    line_ups = get_lineups(match_details["match_id"])
+    return get_sport_specialist_comments_about_match(match_details, line_ups)
+
+
+# Filtra a partida desejada (match_id) e retorna os detalhes da partida
+def retrieve_match_details(action_input:str) -> str:
+    """
+    Get the details of a specific match 
+    
+    Args:
+        - action_input(str): The input data containing the match_id.
+          format: {
+              "match_id": 12345
+              "competition_id": 123,
+                "season_id": 02
+            }
+    """
+    match_id = json.loads(action_input)["match_id"]
+    competition_id = json.loads(action_input)["competition_id"]
+    season_id = json.loads(action_input)["season_id"]
+    matches = json.loads(get_matches(competition_id, season_id))
+    match_details= next(
+        (match for match in matches if match["match_id"] == int(match_id)),
+        None
+    )
+    return match_details
+
 
 
 if __name__ == "__main__":
