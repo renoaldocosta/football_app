@@ -9,7 +9,7 @@ def get_match_details_match_id(match_id: int) -> dict:
     Returns:
         dict: The details of the match.
     """
-    raw_data = sb.events(match_id=match_id)  # type: ignore
+    raw_data = sb.events(match_id=match_id, fmt="dict")
     return raw_data
 
 
