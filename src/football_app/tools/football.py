@@ -57,6 +57,12 @@ def get_raw_data_match(match_id):
     dict_match = sb.matches(competition_id, season_id, matches_id)
     return dict_match
 
+def get_match_overview(match_id):
+    df = get_matches_fifa_world_cup()
+    df = df[df['match_id'] == match_id]
+    general_data_match = df[['match_id', 'home_team', 'away_team', 'home_score', 'away_score', 'competition_id', 'season_id']]
+    return general_data_match
+
 # Processa o JSON de lineups, extraindo apenas os jogadores titulares.
 def filter_starting_xi(line_ups: str) -> dict:
     """
