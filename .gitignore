@@ -3,3 +3,4 @@ venv/
 .mypy_cache/
 notebook.ipynb
 __pycache__/
+matches_fifa_world_cup.parquet

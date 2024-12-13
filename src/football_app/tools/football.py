@@ -1,10 +1,12 @@
 from statsbombpy import sb  # type: ignore
 import json
+import os
 from langchain_google_genai import GoogleGenerativeAI
 import yaml
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
+import pandas as pd
 
 from football_stats.competitions import get_matches
 from football_stats.matches import get_lineups
@@ -23,6 +25,37 @@ def get_match_details_match_id(match_id: int) -> dict:
     raw_data = sb.events(match_id=match_id, fmt="dict")
     return raw_data
 
+
+# Salva dados das partidas da Copa do Mundo FIFA em um arquivo parquet ou lê o arquivo parquet se ele já existir.
+def get_matches_fifa_world_cup():
+    if 'matches_fifa_world_cup.parquet' in os.listdir("./data/"):
+            return pd.read_parquet('./data/matches_fifa_world_cup.parquet')
+
+    competition_name = 'FIFA World Cup'
+    df = sb.competitions()
+    season_id = df[df['competition_name'] == competition_name]['season_id'].to_list()
+    competition_id = df[df['competition_name'] == 'FIFA World Cup']['competition_id'].to_list()[0]
+    matches = []
+    for id in season_id:
+            df = sb.matches(competition_id, id)
+            df['competition_id'] = competition_id
+            df['season_id'] = id
+            matches.append(df) # [['match_id','home_team', 'away_team', 'home_score', 'away_score']])
+
+    df_matches = pd.concat(matches)
+    
+    df_matches.to_parquet('./data/matches_fifa_world_cup.parquet')
+    
+    return df_matches
+
+
+# Retorna os detalhes de uma partida específica, utilizando o match_id.
+def get_raw_data_match(match_id):
+    # df = pd.read_parquet('matches_ids.parquet')
+    df = get_matches_fifa_world_cup()
+    competition_id, season_id, matches_id = df[df['match_id'] == match_id][['competition_id', 'season_id', 'match_id']].values[0]
+    dict_match = sb.matches(competition_id, season_id, matches_id)
+    return dict_match
 
 # Processa o JSON de lineups, extraindo apenas os jogadores titulares.
 def filter_starting_xi(line_ups: str) -> dict:
