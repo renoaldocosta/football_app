@@ -3,8 +3,7 @@ import pandas as pd
 import time
 from statsbombpy import sb
 from tools.football import  get_raw_data_match, get_match_overview
-from football_stats.matches import return_overview_events_goals, get_cards_overview
-
+from football_stats.matches import return_overview_events_goals, get_cards_overview, process_match_lineups
 
 @st.cache_data
 def load_data():
@@ -186,14 +185,10 @@ def run():
                 st.write(f"**Card:** {card['card']['card_name']} - **Team:** {card['card']['team']} - **Player:** {card['card']['player']}")
                 # st.write(f"**Team:** {card['team']} - **Player:** {card['player']} - **Card:** {card['card_name']}")
         with tab3:
-            st.write("Events Player")
-            # st.write(df_eventos_cartoes)
-            # st.write(list_cartoes)
-            # st.write(df_goal)
-            # st.write(goal_list)
-            # st.write(general_data_match)
-            # st.write(match_overview)
-            st.write("Em construção...")
+            lineups_df = process_match_lineups(match_id)
+            # Formato para selectbox: pleyer: Pais - Jogador
+            player = st.selectbox('Selecione o jogador:', lineups_df['player_name'], format_func=lambda x: f"{lineups_df['country'][lineups_df['player_name'] == x].values[0]} - {x}")
+            st.write(player)
         
         progress_bar.progress(100)
         time.sleep(tempo_carregamento*1.6)

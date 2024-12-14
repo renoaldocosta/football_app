@@ -198,7 +198,7 @@ def process_match_lineups(match_id):
         df_players = pd.concat([df_team_a, df_team_b], ignore_index=True)
         
         # Selecionando apenas as colunas relevantes
-        df_players = df_players[['player_name', 'player_id']]
+        df_players = df_players[['player_name', 'player_id','country']]
         
         return df_players
     
