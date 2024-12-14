@@ -142,7 +142,7 @@ def get_raw_data_match(match_id):
     df = get_matches_fifa_world_cup()
     competition_id, season_id, matches_id = df[df['match_id'] == match_id][['competition_id', 'season_id', 'match_id']].values[0]
     dict_match = sb.matches(competition_id, season_id, matches_id)
-    return dict_match
+    return dict_match[match_id]
 
 def get_match_overview(match_id):
     df = get_matches_fifa_world_cup()
