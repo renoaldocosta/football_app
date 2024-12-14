@@ -7,3 +7,4 @@ fastapi
 mplsoccer
 matplotlib
 wikipedia
+uvicorn

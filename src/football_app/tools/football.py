@@ -15,14 +15,14 @@ from football_stats.matches import get_lineups
 load_dotenv()
 
 
-def get_match_summary(match):
-    general_data_match, match_overview = get_match_overview(match)
+def get_match_summary(match_id):
+    general_data_match, match_overview = get_match_overview(match_id)
 
     # Obtém os principais eventos da partida
-    df_goal, goal_list = return_overview_events_goals(match)
+    df_goal, goal_list = return_overview_events_goals(match_id)
 
     # Obtém os cartões da partida
-    df_eventos_cartoes,list_cartoes = get_cards_overview(match)
+    df_eventos_cartoes,list_cartoes = get_cards_overview(match_id)
     # # save_dict_as_yaml(match_overview, game_overview_path)
     # # save_dict_as_yaml(goal_list, goals_path)
     # # save_dict_as_yaml(list_cartoes, cards_path)
