@@ -15,6 +15,29 @@ from football_stats.matches import get_lineups
 load_dotenv()
 
 
+
+# Função para obter o prompt baseado no estilo escolhido
+def get_prompt(style):
+    """
+    Retrieves the prompt string based on the given style.
+    
+    Args:
+        style (str): The style of the prompt (e.g., 'formal', 'humoristico', 'tecnico').
+    
+    Returns:
+        str: The prompt string corresponding to the selected style.
+    """
+    # Load the YAML file
+    with open('./data/commentary_prompts.yaml', 'r', encoding='utf-8') as file:
+        prompts = yaml.safe_load(file)
+    
+    # Retrieve the selected style's dictionary; default to 'padrao' if not found
+    selected_style = prompts['commentary_prompts'].get(style, prompts['commentary_prompts']['padrao'])
+    
+    # Extract and return the 'prompt' string
+    return selected_style['prompt']
+
+
 def get_match_summary(match_id):
     general_data_match, match_overview = get_match_overview(match_id)
 
@@ -165,7 +188,7 @@ def filter_starting_xi(line_ups: str) -> dict:
 
 
 # Gera comentários especializados sobre a partida, utilizando LLMChain com o modelo GoogleGenerativeAI
-def get_sport_specialist_comments_about_match(match_details: str, line_ups: str) -> str:
+def get_sport_specialist_comments_about_match(match_details: str, line_ups: str, prompt_style) -> str:
     """
     Returns the comments of a sports specialist about a specific match.
     The comments are generated based on match details and lineups.
@@ -173,37 +196,39 @@ def get_sport_specialist_comments_about_match(match_details: str, line_ups: str)
     
     line_ups = filter_starting_xi(line_ups)
     
-    agent_prompt = """
-    You are a sports commentator with expertise in football (soccer). Respond as
-    if you are delivering an engaging analysis for a TV audience. Here is the
-    information to include:
+    # agent_prompt = """
+    # You are a sports commentator with expertise in football (soccer). Respond as
+    # if you are delivering an engaging analysis for a TV audience. Here is the
+    # information to include:
 
-    Instructions:
-    1. Game Overview:
-        - Describe the importance of the game (league match, knockout, rivalry, etc.).
-        - Specify when and where the game took place.
-        - Provide the final result.
-    3. Analysis of the Starting XI:
-        - Evaluate the starting lineups for both teams.
-        - Highlight key players and their roles.
-        - Mention any surprising decisions or notable absences.
-    3.  Contextual Insights:
-        - Explain the broader implications of the match (rivalry, league standings, or storylines).
-    4. Engaging Delivery:
-        - Use a lively, professional, and insightful tone, making the commentary
-        appealing to fans of all knowledge levels.
+    # Instructions:
+    # 1. Game Overview:
+    #     - Describe the importance of the game (league match, knockout, rivalry, etc.).
+    #     - Specify when and where the game took place.
+    #     - Provide the final result.
+    # 3. Analysis of the Starting XI:
+    #     - Evaluate the starting lineups for both teams.
+    #     - Highlight key players and their roles.
+    #     - Mention any surprising decisions or notable absences.
+    # 3.  Contextual Insights:
+    #     - Explain the broader implications of the match (rivalry, league standings, or storylines).
+    # 4. Engaging Delivery:
+    #     - Use a lively, professional, and insightful tone, making the commentary
+    #     appealing to fans of all knowledge levels.
     
-    The match details are provided by the provided as follow: 
-    {match_details}
+    # The match details are provided by the provided as follow: 
+    # {match_details}
     
-    The team lineups are provided here:
-    {lineups}
+    # The team lineups are provided here:
+    # {lineups}
     
-    Provide the expert commentary on the match as you are in a sports broadcast.
-    Start your analysis now and engage the audience with your insights.
+    # Provide the expert commentary on the match as you are in a sports broadcast.
+    # Start your analysis now and engage the audience with your insights.
     
-    Say: "Hello everyone, I've watched to the match between [Home Team] and [Away Team]..."
-    """
+    # Say: "Hello everyone, I've watched to the match between [Home Team] and [Away Team]..."
+    # """
+    agent_prompt = get_prompt(prompt_style)
+    
     llm = GoogleGenerativeAI(model="gemini-pro")
     input_variables={"match_details": yaml.dump(match_details),
                     "lineups": yaml.dump(line_ups)}
@@ -215,7 +240,7 @@ def get_sport_specialist_comments_about_match(match_details: str, line_ups: str)
 
 
 # Gera o comentário do especialista.
-def get_specialist_comments(action_input:str) -> str:
+def get_specialist_comments(action_input:str, prompt_style) -> str:
     """
     Provide an overview of the match and the match details.
     Provide comments of a sports specialist about a specific match.
@@ -231,7 +256,7 @@ def get_specialist_comments(action_input:str) -> str:
     """
     match_details = retrieve_match_details(action_input)
     line_ups = get_lineups(match_details["match_id"])
-    return get_sport_specialist_comments_about_match(match_details, line_ups)
+    return get_sport_specialist_comments_about_match(match_details, line_ups, prompt_style)
 
 
 # Filtra a partida desejada (match_id) e retorna os detalhes da partida
