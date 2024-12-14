@@ -152,7 +152,7 @@ def run():
         with st.sidebar:
             match_id = st.sidebar.number_input("ID da partida:", min_value=0, max_value=1000000000, value=3888701)
         raw_data_match = get_raw_data_match(match_id)
-        tab1, tab2 = st.tabs(["Raw Data Match", "Match Overview"])
+        tab1, tab2, tab3 = st.tabs(["Raw Data Match", "Match Overview", "Events Player"])
         with tab1:
             home_team = raw_data_match["home_team"]["home_team_name"]
             away_team = raw_data_match["away_team"]["away_team_name"]
@@ -168,18 +168,32 @@ def run():
 
             st.write('**Overview:**')
             # st.write(general_data_match[["home_team", "away_team", "home_score", "away_score"]]) # 
-            st.write(f"     Final Score: {int(general_data_match['home_score'])} x {int(general_data_match['away_score'])}")
+            st.write(f"     Final Score: **{int(general_data_match['home_score'])}** x **{int(general_data_match['away_score'])}**")
 
             st.divider()
             
             st.write('**Goals:**')
             # st.write(df_goal[['team','player','key_pass_player']])
             for goal in goal_list:
-                st.write(goal['team'])
+                st.write(f"**Team:** {goal['team']}- **Player:** {goal['player']} - **Assistence:** ({goal['key_pass_player']})")
 
-            print('==================== Cartões ====================')
-            st.write(df_eventos_cartoes[['minute', 'team', 'player', 'card_name']])
-        
+            st.divider()
+            
+            st.write('**Cards**')
+            # st.write(df_eventos_cartoes[['minute', 'team', 'player', 'card_name']])
+            # st.write(list_cartoes)
+            for card in list_cartoes:
+                st.write(f"**Card:** {card['card']['card_name']} - **Team:** {card['card']['team']} - **Player:** {card['card']['player']}")
+                # st.write(f"**Team:** {card['team']} - **Player:** {card['player']} - **Card:** {card['card_name']}")
+        with tab3:
+            st.write("Events Player")
+            # st.write(df_eventos_cartoes)
+            # st.write(list_cartoes)
+            # st.write(df_goal)
+            # st.write(goal_list)
+            # st.write(general_data_match)
+            # st.write(match_overview)
+            st.write("Em construção...")
         
         progress_bar.progress(100)
         time.sleep(tempo_carregamento*1.6)
