@@ -9,6 +9,15 @@ import numpy as np
 def to_json(df: pd.DataFrame) -> str:
     return json.dumps(df, indent=2)
 
+# Função para encontrar o jogador que fez o passe-chave
+def find_key_pass_player(pass_id, eventos):
+    if not pass_id:
+        return None
+    for evento in eventos:
+        if evento.get('id') == pass_id:
+            return evento.get('player')
+    return None
+
 
 # Obtém as escalações de uma partida específica usando sb.lineups, processa os dados, e retorna um JSON
 def get_lineups(match_id: int) -> str:
