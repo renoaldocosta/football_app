@@ -15,7 +15,7 @@ from football_stats.matches import get_lineups
 load_dotenv()
 
 
-def get_match_summary(match,game_overview_path, goals_path, cards_path):
+def get_match_summary(match):
     general_data_match, match_overview = get_match_overview(match)
 
     # Obtém os principais eventos da partida
