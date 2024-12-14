@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
+import json
 import time
 from statsbombpy import sb
 from tools.football import  get_raw_data_match, get_match_overview
-from football_stats.matches import return_overview_events_goals, get_cards_overview, process_match_lineups
+from football_stats.matches import return_overview_events_goals, get_cards_overview, process_match_lineups, get_player_stats
 
 @st.cache_data
 def load_data():
@@ -188,7 +189,17 @@ def run():
             lineups_df = process_match_lineups(match_id)
             # Formato para selectbox: pleyer: Pais - Jogador
             player = st.selectbox('Selecione o jogador:', lineups_df['player_name'], format_func=lambda x: f"{lineups_df['country'][lineups_df['player_name'] == x].values[0]} - {x}")
-            st.write(player)
+            st.header(f"STATS For Player ({player})")
+            try:
+                col = st.columns(3)
+                with col[1]:
+                    player_events = get_player_stats(match_id, player)
+                    player_events = json.loads(player_events)
+                    player_events.pop('player_name')
+                    for event in player_events:
+                        st.write(f"{event}: {player_events[event]}")
+            except:
+                st.write(f"No events found for player '{player}'")
         
         progress_bar.progress(100)
         time.sleep(tempo_carregamento*1.6)
