@@ -47,6 +47,7 @@ def get_player_stats(match_id, player_name) -> str:
 
         # Consolidate statistics
         stats = {
+            "player_name": player_name,
             "passes_completed": player_events[(player_events['type'] == 'Pass') & (player_events['pass_outcome'].isna())].shape[0],
             "passes_attempted": player_events[player_events['type'] == 'Pass'].shape[0],
             "shots": player_events[player_events['type'] == 'Shot'].shape[0],
