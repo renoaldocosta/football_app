@@ -47,7 +47,7 @@ def return_overview_events_goals(match_id: int) -> pd.DataFrame():
     events_list = []
     for _, row in df_eventos.iterrows():
         dict_event = {
-            'minute': row['minute'],
+            # 'minute': row['minute'],
             'team': row['team'],
             'player': row['player'],
             'key_pass_player': row['key_pass_player']
@@ -91,7 +91,7 @@ def get_cards_overview(match):
     for _, row in df_eventos_cartoes.iterrows():
         dict_cartoes = {
             'card': {
-                'minute': row['minute'],
+                # 'minute': row['minute'],
                 'team': row['team'],
                 'player': row['player'],
                 'card_name': row['card_name']

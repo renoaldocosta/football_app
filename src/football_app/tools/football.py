@@ -8,10 +8,74 @@ from langchain.chains import LLMChain
 from dotenv import load_dotenv
 import pandas as pd
 
+from football_stats.matches import return_overview_events_goals, get_cards_overview
 from football_stats.competitions import get_matches
 from football_stats.matches import get_lineups
 
 load_dotenv()
+
+
+def get_match_summary(match,game_overview_path, goals_path, cards_path):
+    general_data_match, match_overview = get_match_overview(match)
+
+    # Obtém os principais eventos da partida
+    df_goal, goal_list = return_overview_events_goals(match)
+
+    # Obtém os cartões da partida
+    df_eventos_cartoes,list_cartoes = get_cards_overview(match)
+    # # save_dict_as_yaml(match_overview, game_overview_path)
+    # # save_dict_as_yaml(goal_list, goals_path)
+    # # save_dict_as_yaml(list_cartoes, cards_path)
+    
+    match_overview_yaml = yaml.dump(match_overview)
+    goals_yaml = yaml.dump(goal_list)
+    cards_yaml = yaml.dump(list_cartoes)
+
+
+    # with open(game_overview_path, 'r') as f:
+    #     game_overview = f.read()
+    # with open(goals_path, 'r', encoding='UTF-8') as f:
+    #     goals = f.read()
+    # with open(cards_path, 'r') as f:
+    #     cards = f.read()
+
+    prompt = f"""
+    You are a sports commentator with expertise in football (soccer). Respond as
+        if you are delivering an speed summary for a TV audience. Here is the
+        information to include:
+
+        Instructions:
+        1. Game Overview:
+            - Mention the teams that played the match.
+            - Provide the final score.
+        2. Goals:
+            - Mention the playeres who made the goal.
+            - Mention who assisted the goal.
+        3. Cards:
+            - Mention the players who received a card.
+            - Mention the type of card.
+        
+        The Game Overview are provided by the provided as follow: 
+        {match_overview_yaml}
+        
+        The players who scored the goals, the players who assisted the goals and the teams that the players are playing are provided here:
+        {goals_yaml}
+        
+        The cards, players and the teams that the players are playing are provided here:
+        {cards_yaml}
+        
+        Provide the clear and friendly commentary with this <FORMAT>:
+        
+        "O time A venceu o time B por 2 a 0. Os destaques foram os gols de João e Lucas, além de uma assistência de Ana. O jogador do time B, Pedro, recebeu um cartão amarelo."
+        
+        Atention:
+        - Mention every goal and card and the teams that the players are playing.
+        - Respond in portuguese-BR
+        """
+    
+    llm = GoogleGenerativeAI(model="gemini-pro")
+    summary_match_result = llm.invoke(prompt)
+    return summary_match_result
 
 def get_match_details_match_id(match_id: int) -> dict:
     """
