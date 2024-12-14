@@ -172,6 +172,41 @@ def find_key_pass_player(pass_id, eventos):
     return None
 
 
+def process_match_lineups(match_id):
+    """Extrai e processa as escalações da partida, retornando um DataFrame"""
+    try:
+        # Obtendo a formação
+        lineups_data = get_lineups(match_id)
+        
+        # Convertendo o JSON para dicionário
+        lineups_dict = json.loads(lineups_data)
+        
+        # Verificando as equipes
+        if len(lineups_dict) != 2:
+            raise ValueError("Esperado apenas 2 equipes na formação da partida.")
+        
+        # Extraindo as equipes
+        team_a_name, team_b_name = lineups_dict.keys()
+        team_a_players = lineups_dict[team_a_name]
+        team_b_players = lineups_dict[team_b_name]
+        
+        # Convertendo os jogadores para DataFrame
+        df_team_a = pd.DataFrame(team_a_players)
+        df_team_b = pd.DataFrame(team_b_players)
+        
+        # Concatenando as duas equipes
+        df_players = pd.concat([df_team_a, df_team_b], ignore_index=True)
+        
+        # Selecionando apenas as colunas relevantes
+        df_players = df_players[['player_name', 'player_id']]
+        
+        return df_players
+    
+    except Exception as e:
+        print(f"Erro ao obter ou processar as escalações: {e}")
+        return pd.DataFrame()  # Retorna um DataFrame vazio em caso de erro
+
+
 # Obtém as escalações de uma partida específica usando sb.lineups, processa os dados, e retorna um JSON
 def get_lineups(match_id: int) -> str:
     data = sb.lineups(match_id=match_id)
