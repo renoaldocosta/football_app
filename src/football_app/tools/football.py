@@ -61,13 +61,15 @@ def get_match_overview(match_id):
     df = get_matches_fifa_world_cup()
     df = df[df['match_id'] == match_id]
     general_data_match = df[['match_id', 'home_team', 'away_team', 'home_score', 'away_score', 'competition_id', 'season_id']]
-    match_overview = {
-            'home_team': general_data_match['home_team'].values[0],
-            'away_team': general_data_match['away_team'].values[0],
-            'home_score': general_data_match['home_score'].values[0],
-            'away_score': general_data_match['away_score'].values[0],
-    }
-    return general_data_match, match_overview
+    # return df_eventos_cartoes, cards_list
+    for _, row in general_data_match.iterrows():
+        match_dict = {
+            'home_team': row['home_team'],
+            'away_team': row['away_team'],
+            'home_score': row['home_score'],
+            'away_score': row['away_score'],
+        }
+    return general_data_match, match_dict
 
 # Processa o JSON de lineups, extraindo apenas os jogadores titulares.
 def filter_starting_xi(line_ups: str) -> dict:
