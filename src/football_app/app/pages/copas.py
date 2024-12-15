@@ -5,6 +5,7 @@ import time
 from statsbombpy import sb
 from tools.football import  get_raw_data_match, get_match_overview
 from football_stats.matches import return_overview_events_goals, get_cards_overview, process_match_lineups, get_player_stats
+import plotly.express as px
 from mplsoccer import (
     Sbopen,
     Pitch,
@@ -287,6 +288,12 @@ def run():
             events_to_show.rename(columns={'type': 'Event Type', 'count': 'Count'}, inplace=True)
             events_to_show.index = events_to_show.index + 1
             with st.expander("Aggregated Events"):
+                # Cria gráfico com plotly para Event Type e Count
+                st.header("Chart - Aggregated Events")
+                fig = px.bar(events_to_show, x='Event Type', y='Count', title='Event Type and Count')
+                st.plotly_chart(fig)
+                st.divider()
+                st.header("List - Aggregated Events")
                 col = st.columns(3)
                 with col[1]:
                     col2 = st.columns(2)
@@ -297,9 +304,7 @@ def run():
                         else:
                             with col2[1]:
                                 st.write(f"{event[1]['Event Type']}: {event[1]['Count']}")
-            # Cria gráfico com plotly para Event Type e Count
-            # fig = px.bar(events_to_show, x='Event Type', y='Count', title='Event Type and Count')
-            # st.plotly_chart(fig)
+            
             
                 
                 
