@@ -7,13 +7,29 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
 import pandas as pd
+from langchain.tools import tool
 
 from football_stats.matches import return_overview_events_goals, get_cards_overview
 from football_stats.competitions import get_matches
 from football_stats.matches import get_lineups
-
+# src\football_app\football_stats\matches.py
 load_dotenv()
 
+
+@tool
+def get_match_details(action_input:str) -> str:
+    """
+    Get the details of a specific match 
+    
+    Args:
+        - action_input(str): The input data containing the match_id.
+          format: {
+              "match_id": 12345
+              "competition_id": 123,
+                "season_id": 02
+            }
+    """
+    return yaml.dump(retrieve_match_details(action_input))
 
 
 # Função para obter o prompt baseado no estilo escolhido
@@ -240,6 +256,7 @@ def get_sport_specialist_comments_about_match(match_details: str, line_ups: str,
 
 
 # Gera o comentário do especialista.
+@tool
 def get_specialist_comments(action_input:str, prompt_style) -> str:
     """
     Provide an overview of the match and the match details.

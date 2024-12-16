@@ -4,11 +4,14 @@ from langchain_core.tools import Tool
 
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 from langchain_community.tools.wikipedia.tool import WikipediaQueryRun
-import yaml
+
 
 from .self_ask_agent import get_self_ask_agent, search_team_information
-from tools.football import get_specialist_comments, retrieve_match_details
+from .football import get_specialist_comments
 from langchain.tools import tool
+from tools.football import retrieve_match_details
+import yaml
+
 
 
 @tool
@@ -27,7 +30,6 @@ def get_match_details(action_input:str) -> str:
     return yaml.dump(retrieve_match_details(action_input))
 
 
-# src\football_app\tools\football.py 
 def load_tools(tool_names: List[str] = []) -> Dict[str, Tool]:
     """
     Load the tools with the given tool names

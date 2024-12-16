@@ -7,14 +7,15 @@ def sidebar():
     # Dicionário que mapeia nomes de exibição para nomes de arquivos de script
     pages = {
         "Introdução": "introducao",
-        "Copas do Mundo": "copas",
+        "Analytics": "copas",
+        "Chatbot": "chat",
     }
 
     # Lista de ícones apropriados para cada página
     icons = [
         "house",      # Ícone de casa para "Introdução"
-        "trophy",     # Ícone de troféu para "Copas do Mundo"
         "bar-chart",  # Ícone de gráfico de barras para "Conhecendo os Dados"
+        "trophy",     # Ícone de troféu para "Copas do Mundo"
         "book"        # Ícone de livro para "Dicionário de Dados"
         
     ]
