@@ -6,6 +6,7 @@ from typing import List
 from tools.load_tools import load_tools
 # src\football_app\tools\load_tools
 
+    # 5. Analyze match overview such as date, location, competition, and result.
 
 def load_agent() -> AgentExecutor:
     """
@@ -20,11 +21,8 @@ def load_agent() -> AgentExecutor:
     The competition ID: {competition_id}.
     The season ID: {season_id}.
 
-    The task involves multiple aspects:
-    1. Analyze match details such as date, location, competition, and result.
-    2. Provide context about the match's importance (e.g., stage, rivalry, stakes).
-    3. Analyze and comment on the starting XI of both teams, including key players, tactical insights, or notable absences.
-    4. Perform any other relevant tasks requested by the user regarding the match.
+    The task involves:
+    1. Analyze specific passes in the match (e.g., who made the most passes).
 
     You have access to the following tools: {tool_names}.
     Descriptions of tools: {tools}.
@@ -39,11 +37,9 @@ def load_agent() -> AgentExecutor:
     Observation: [The output or result from the tool]
 
     Example:
-        Thought: I need to retrieve the basic details of the match to provide an overview.
-        Action: get_match_details
-        Action Input: {{"match_id": "12345", "competition_id": "123", "season_id": "02"}}
-        Observation: Do I have the match details? If not, I will use the tool to retrieve them.
-                     Otherwise, I will proceed with the analysis.
+        Thought: I need to retrieve the players that made the most passes in the match.
+        Action: top_players_by_pass
+        Action Input: {{"match_id": "12345"}}
 
     ### Observations and Next Steps:
     - Based on the tool's output, decide on the next action or provide your analysis.
@@ -62,6 +58,10 @@ def load_agent() -> AgentExecutor:
     ### Agent's Workspace:
     {agent_scratchpad}
     """
+    
+    # Thought: I need to retrieve the basic details of the match to provide an overview.
+    #     Action: get_match_details
+    #     Action Input: {{"match_id": "12345", "competition_id": "123", "season_id": "02"}}
     prompt = PromptTemplate(
        input_variables=["match_id",
                         "match_name",

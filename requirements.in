@@ -10,3 +10,6 @@ wikipedia
 uvicorn
 streamlit_option_menu
 plotly
+langchain_openai
+langchain-core
+langchain-openai

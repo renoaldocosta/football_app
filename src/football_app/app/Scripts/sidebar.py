@@ -9,6 +9,7 @@ def sidebar():
         "Introdução": "introducao",
         "Analytics": "copas",
         "Chatbot": "chat",
+        "Chatbot2": "chat2",
     }
 
     # Lista de ícones apropriados para cada página

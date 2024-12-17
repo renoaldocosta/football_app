@@ -1,4 +1,5 @@
 from statsbombpy import sb  # type: ignore
+from langchain.tools import BaseTool
 import json
 import os
 from langchain_google_genai import GoogleGenerativeAI
@@ -8,6 +9,7 @@ from langchain.chains import LLMChain
 from dotenv import load_dotenv
 import pandas as pd
 from langchain.tools import tool
+from collections import defaultdict
 
 from football_stats.matches import return_overview_events_goals, get_cards_overview
 from football_stats.competitions import get_matches
@@ -31,6 +33,165 @@ def get_match_details(action_input:str) -> str:
     """
     return yaml.dump(retrieve_match_details(action_input))
 
+def get_all_action_types(match_id):
+    raw_data = sb.events(match_id=match_id, fmt="dict")
+    
+    action_types = set()  # Usar um set para evitar duplicatas
+
+    # Iterar pelos eventos da partida
+    for key, event in raw_data.items():
+        try:
+            # Captura o nome do tipo de jogada
+            action_type = event["type"]["name"]
+            action_types.add(action_type)  # Adiciona ao conjunto
+        except KeyError:
+            pass  # Ignora eventos incompletos
+
+    message = "Tipos de jogadas encontrados na partida:\n"
+    message = ""
+    for action in action_types:
+        message += f"- {action}\n"
+    # return list(action_types)  # Retorna como lista
+    return message
+    
+
+@tool
+def top_players_by_pass(action_input: str) -> str:
+    """
+    Get the players with the most passes in a specific match.
+    
+    Args:
+        - action_input(str): The input data containing the match_id.
+            format: {
+                "match_id": 12345
+            }
+    """
+    try:
+        input_data = json.loads(action_input)
+        match_id = input_data.get("match_id")
+        if not match_id:
+            return "Error: 'match_id' not provided in the input."
+    except json.JSONDecodeError:
+        return "Error: Invalid JSON format for action_input."
+
+    action_type_filter = "Pass"
+    raw_data = sb.events(match_id=match_id, fmt="dict")
+
+    # Dictionary to count actions per player
+    player_action_count = defaultdict(int)
+
+    # Iterate through the data and filter by action type
+    for key in raw_data.keys():
+        dicionario = raw_data[key]
+        try:
+            player_name = dicionario["player"]["name"]
+            action_type = dicionario["type"]["name"]
+
+            if action_type == action_type_filter:
+                player_action_count[player_name] += 1
+        except KeyError:
+            pass  # Ignore incomplete data
+
+    if not player_action_count:
+        return f"No actions of type '{action_type_filter}' found for match ID {match_id}."
+
+    # Find the maximum number of actions
+    max_actions = max(player_action_count.values())
+
+    # Get all players with the maximum number of actions
+    top_players = [
+        player for player, count in player_action_count.items() if count == max_actions
+    ]
+
+    message = f"Players with the most '{action_type_filter}' actions:\n"
+    for player in top_players:
+        message += f"Player: {player} | Number of Actions: {max_actions}\n"
+    return message
+
+
+# class TopPlayersByActionTool(BaseTool):
+#     name = "top_players_by_action"
+#     description = "Retorna os jogadores com mais ações de um tipo específico em uma partida."
+
+#     def _run(self, tool_input: str):
+#         # Parse o input, por exemplo, usando JSON
+#         import json
+#         params = json.loads(tool_input)
+#         match_id = params.get("match_id")
+#         action_type_filter = params.get("action_type_filter")
+        
+#         # Aqui você incluiria a lógica da sua função original
+#         raw_data = sb.events(match_id=match_id, fmt="dict")
+#         player_action_count = defaultdict(int)
+        
+#         for key in raw_data.keys():
+#             dicionario = raw_data[key]
+#             try:
+#                 player_name = dicionario["player"]["name"]
+#                 action_type = dicionario["type"]["name"]
+
+#                 if action_type == action_type_filter:
+#                     player_action_count[player_name] += 1
+#             except KeyError:
+#                 pass
+
+#         max_actions = max(player_action_count.values(), default=0)
+#         top_players = [player for player, count in player_action_count.items() if count == max_actions]
+
+#         message = f"Jogadores com mais ações do tipo '{action_type_filter}':"
+#         for player in top_players:
+#             message += f"\nJogador: {player} | Quantidade de Ações: {max_actions}"
+#         return message
+
+#     async def _arun(self, tool_input: str):
+#         raise NotImplementedError("Este método não está implementado.")
+
+
+
+# Função para retornar jogadores com mais ações de um tipo específico
+# @tool
+# def top_players_by_action(match_id, action_type_filter):
+#     """
+#     Retorna os jogadores com mais ações de um determinado tipo em uma partida.
+#     Args:
+#         match_id (int): O ID da partida.
+#         action_type_filter (str): O tipo de ação a ser filtrada (por exemplo, "Pass", "Shot").
+#     Returns:
+#         str: Uma mensagem contendo os jogadores com mais ações do tipo especificado e a quantidade de ações.
+#     Exceções:
+#         KeyError: Ignora dados incompletos que não possuem as chaves esperadas.
+#     """
+    
+#     raw_data = sb.events(match_id=match_id, fmt="dict")
+    
+#     # Dicionário para contar as ações por jogador
+#     player_action_count = defaultdict(int)
+
+#     # Iterar pelos dados e filtrar pelo tipo de jogada
+#     for key in raw_data.keys():
+#         dicionario = raw_data[key]
+#         try:
+#             player_name = dicionario["player"]["name"]
+#             action_type = dicionario["type"]["name"]
+
+#             # Verifica se o tipo de jogada corresponde ao filtro
+#             if action_type == action_type_filter:
+#                 player_action_count[player_name] += 1
+#         except KeyError:
+#             pass  # Ignora dados incompletos
+
+#     # Encontrar a maior contagem de ações
+#     max_actions = max(player_action_count.values(), default=0)
+
+#     # Filtrar jogadores com a contagem máxima
+#     top_players = [player for player, count in player_action_count.items() if count == max_actions]
+
+#     message = ""
+#     # return list(action_types)  # Retorna como lista
+#     message = f"Jogadores com mais ações do tipo '{action_type_filter}':"
+#     for player in top_players:
+#         message += f"\nJogador: {player} | Quantidade de Ações: {max_actions}"
+#     return message
 
 # Função para obter o prompt baseado no estilo escolhido
 def get_prompt(style):
