@@ -182,40 +182,6 @@ curl -X POST "http://127.0.0.1:8000/player_profile" \
 }
 ```
 
-### 3. Narração Personalizada
-
-**Endpoint**: `http://127.0.0.1:8000/narration`
-
-**Método**: `POST`
-
-**Entrada**: Estilo de narração (`Formal`, `Humorístico`, `Técnico`)
-
-**Requisição**:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/narration" \
-     -H "Content-Type: application/json" \
-     -d '{
-           "match_id": 3869151,
-           "style": "Formal"
-         }'
-```
-
-**Saída**:
-
-- **Formal**:
-  ```
-  "O time Argentina garantiu a vitória sobre o time Austrália com um placar de 2 a 0. Lionel Messi abriu o placar após uma assistência de Nicolás Otamendi, seguido por Julián Álvarez para selar o resultado. A equipe Austrália recebeu dois cartões amarelos, um para Jackson Irvine e outro para Miloš Degenek."
-  ```
-- **Humorístico**:
-  ```
-  "Que partida emocionante! A Argentina levou a melhor sobre a Austrália com um placar de 2 a 0. Messi mostrou sua magia com um gol assistido por Otamendi, e Álvarez fechou o show. Enquanto isso, a Austrália teve que sair com duas estrelinhas amarelas para Irvine e Degenek. Melhor sorte na próxima!"
-  ```
-- **Técnico**:
-  ```
-  "Na partida, a Argentina demonstrou superioridade tática, conseguindo um 2 a 0 contra a Austrália. Lionel Messi finalizou após uma construção de jogada eficaz envolvendo Nicolás Otamendi. Julián Álvarez ampliou a vantagem com precisão nas finalizações. A Austrália enfrentou dificuldades defensivas, resultando em dois cartões amarelos para Jackson Irvine e Miloš Degenek."
-  ```
-
 ## Detalhamento dos Exemplos
 
 ### Sumarização de Partida
@@ -228,10 +194,6 @@ curl -X POST "http://127.0.0.1:8000/narration" \
 - **Descrição**: Este endpoint fornece estatísticas detalhadas de um jogador específico em uma partida.
 - **Uso**: Envie o ID da partida e o nome do jogador para obter métricas como passes completados, finalizações, desarmes, entre outros.
 
-### Narração Personalizada
-
-- **Descrição**: Este endpoint gera uma narrativa da partida no estilo escolhido pelo usuário.
-- **Uso**: Envie o ID da partida e o estilo de narração desejado (`Formal`, `Humorístico`, `Técnico`) para obter uma descrição personalizada dos eventos da partida.
 
 ### Explicações Adicionais
 
