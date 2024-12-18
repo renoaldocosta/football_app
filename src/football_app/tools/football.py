@@ -91,6 +91,142 @@ class PlayerStatsError(Exception):
         self.message = message
         super().__init__(self.message)
 
+
+@tool
+def get_players_stats_by_period(action_input: str) -> str:
+    """
+    Returns consolidated statistics for specific players in a match and a specified period in YAML format.
+
+    Args:
+        action_input (str): JSON-formatted string containing:
+            - match_id (int): ID of the match.
+            - player1 (str): Full name of the first player.
+            - player2 (str): Full name of the second player.
+            - period (int, optional): The period of the match to filter events by (e.g., 1 for First Half, 2 for Second Half).
+
+    Returns:
+        str: YAML-formatted string with the consolidated statistics of the players.
+
+    Raises:
+        PlayerStatsError: If there is an issue fetching or calculating the statistics.
+    """
+    try:
+        # Parse the JSON input
+        input_data = json.loads(action_input)
+        match_id = input_data.get("match_id")
+        player1 = input_data.get("player1")
+        player2 = input_data.get("player2")
+        period = input_data.get("period")  # New parameter as integer
+
+        # Validate the presence of required parameters
+        if match_id is None or not player1 or not player2:
+            return "Error: 'match_id', 'player1', and 'player2' must be provided in the input."
+
+        # Validate the 'period' parameter if provided
+        valid_periods = {1, 2}  # 1: First Half, 2: Second Half
+        if period is not None:
+            if not isinstance(period, int):
+                return "Error: 'period' must be an integer (1 for First Half, 2 for Second Half)."
+            if period not in valid_periods:
+                return f"Error: 'period' must be one of {sorted(valid_periods)} (1 for First Half, 2 for Second Half)."
+
+    except json.JSONDecodeError:
+        return "Error: Invalid JSON format for action_input."
+
+    # Initialize an empty dictionary to store statistics for each player
+    stats_players = {}
+
+    # List of players to process
+    players = [player1, player2]
+
+    for player_name in players:
+        try:
+            # Load the events for the specified match
+            events = sb.events(match_id=match_id)
+
+            # Check if any events were loaded; raise an error if none found
+            if events.empty:
+                raise PlayerStatsError(f"No events found for match ID {match_id}.")
+
+            # If period is specified, filter events by period
+            if period is not None:
+                # Assuming 'period' in events is an integer matching the input
+                events = events[events['period'] == period]
+                if events.empty:
+                    raise PlayerStatsError(f"No events found for period '{period}' in match ID {match_id}.")
+
+            # Filter events to include only those related to the current player
+            player_events = events[events['player'] == player_name]
+
+            # Check if the player participated in the match; raise an error if not
+            if player_events.empty:
+                period_info = f" for period '{period}'" if period is not None else ""
+                raise PlayerStatsError(f"No events found for player '{player_name}' in match {match_id}{period_info}.")
+
+            # Consolidate the player's statistics by counting relevant event types
+            stats = {
+                "passes_completed": int(player_events[
+                    (player_events['type'] == 'Pass') & 
+                    (player_events['pass_outcome'].isna())
+                ].shape[0]),
+                
+                "passes_attempted": int(player_events[
+                    player_events['type'] == 'Pass'
+                ].shape[0]),
+                
+                "shots": int(player_events[
+                    player_events['type'] == 'Shot'
+                ].shape[0]),
+                
+                "shots_on_target": int(player_events[
+                    (player_events['type'] == 'Shot') & 
+                    (player_events['shot_outcome'] == 'On Target')
+                ].shape[0]),
+                
+                "fouls_committed": int(player_events[
+                    player_events['type'] == 'Foul Committed'
+                ].shape[0]),
+                
+                "fouls_won": int(player_events[
+                    player_events['type'] == 'Foul Won'
+                ].shape[0]),
+                
+                "tackles": int(player_events[
+                    player_events['type'] == 'Tackle'
+                ].shape[0]),
+                
+                "interceptions": int(player_events[
+                    player_events['type'] == 'Interception'
+                ].shape[0]),
+                
+                "dribbles_successful": int(player_events[
+                    (player_events['type'] == 'Dribble') & 
+                    (player_events['dribble_outcome'] == 'Complete')
+                ].shape[0]),
+                
+                "dribbles_attempted": int(player_events[
+                    player_events['type'] == 'Dribble'
+                ].shape[0]),
+            }
+            
+        except PlayerStatsError as e:
+            # Propagate the PlayerStatsError with the original error message
+            return f"Error: {e.message}"
+        except Exception as e:
+            # Handle any other unexpected errors and raise a PlayerStatsError
+            return f"Error: An unexpected error occurred: {str(e)}"
+        
+        # Add the consolidated statistics for the current player to the main dictionary
+        stats_players[player_name] = stats
+
+    try:
+        # Convert the complete statistics dictionary to a YAML-formatted string
+        players_yaml = yaml.dump(stats_players, sort_keys=False)
+        return players_yaml
+    except Exception as e:
+        return f"Error: Failed to convert statistics to YAML format. {str(e)}"
+
+
 @tool
 def get_players_stats(action_input: str) -> str:
     """

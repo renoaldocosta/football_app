@@ -24,6 +24,7 @@ def load_agent() -> AgentExecutor:
     The task involves:
     1. Analyze specific passes in the match (e.g., who made the most passes).
     2. Compare player statistics (e.g., goals, assists, shots on target).
+    3. Compare player statistics by period (e.g., 1, 2).
 
     You have access to the following tools: {tool_names}.
     Descriptions of tools: {tools}.
@@ -45,6 +46,10 @@ def load_agent() -> AgentExecutor:
         Thought: I need to compare player statistics to provide insights.
         Action: get_players_stats
         Action Input: {{"match_id": "3888701", "player1": "Roberto Rivelino", "player2":"Édson Arantes do Nascimento"]}}
+        
+        Thought: I need to compare player statistics by period to provide insights.
+        Action: get_players_stats_by_period
+        Action Input: {{"match_id": "3888701", "player1": "Roberto Rivelino", "player2":"Édson Arantes do Nascimento", "period": "1"}}
 
     ### Observations and Next Steps:
     - Based on the tool's output, decide on the next action or provide your analysis.
