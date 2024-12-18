@@ -1,3 +1,4 @@
+```markdown
 # Football Match Analysis App
 
 ## Descrição do Projeto
@@ -24,13 +25,13 @@ football_match_analysis/
 │
 ├── src/
 │   └── football_app/
-│       ├── app.py                 # Aplicação Streamlit
-│       ├── notebook_exercicios.ipynb  # Executa as questões 3, 4 e 6
-│       └── main.py                # API FastAPI
+│       ├── app.py                       # Aplicação Streamlit
+│       ├── notebook_exercicios.ipynb    # Executa as questões 3, 4 e 6
+│       └── main.py                      # API FastAPI
 │
-├── requirements.in                # Lista de dependências
-├── .env                           # Variáveis de ambiente
-└── README.md                      # Este arquivo
+├── requirements.in                        # Lista de dependências
+├── .env                                   # Variáveis de ambiente
+└── README.md                              # Este arquivo
 ```
 
 ## Tecnologias Utilizadas
@@ -129,47 +130,115 @@ jupyter notebook src/football_app/notebook_exercicios.ipynb
 
 ### 1. Sumarização de Partida
 
-**Entrada**: ID da partida (e.g., `12345`)
+**Endpoint**: `http://127.0.0.1:8000/match_summary`
+
+**Método**: `POST`
+
+**Entrada**: ID da partida (e.g., `3869151`)
+
+**Requisição**:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/match_summary" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "match_id": 3869151
+         }'
+```
 
 **Saída**:
-```
-"O time A venceu o time B por 3 a 1. Os destaques foram os gols de João e Lucas, além de uma assistência de Ana."
+
+```json
+{
+  "summary": "\"O time Argentina venceu o time Austrália por 2 a 0. O primeiro gol foi marcado por Lionel Messi, após assistência de Nicolás Otamendi. O segundo gol foi marcado por Julián Álvarez.\n\nO time Austrália recebeu dois cartões amarelos, um para Jackson Irvine e outro para Miloš Degenek.\""
+}
 ```
 
 ### 2. Perfil de Jogador
 
-**Entrada**: Nome do jogador (e.g., `João`)
+**Endpoint**: `http://127.0.0.1:8000/player_profile`
+
+**Método**: `POST`
+
+**Entrada**:
+- `match_id`: ID da partida (e.g., `3869151`)
+- `player_name`: Nome do jogador (e.g., `Mathew Ryan`)
+
+**Requisição**:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/player_profile" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "match_id": "3869151",
+           "player_name": "Mathew Ryan"
+         }'
+```
 
 **Saída**:
+
 ```json
 {
-  "nome": "João",
-  "estatisticas": {
-    "passes": 45,
-    "finalizações": 5,
-    "desarmes": 3,
-    "minutos_jogados": 90
-  }
+  "stats": "{\n  \"player_name\": \"Mathew Ryan\",\n  \"passes_completed\": 45,\n  \"passes_attempted\": 53,\n  \"shots\": 0,\n  \"shots_on_target\": 0,\n  \"fouls_committed\": 0,\n  \"fouls_won\": 0,\n  \"tackles\": 0,\n  \"interceptions\": 0,\n  \"dribbles_successful\": 1,\n  \"dribbles_attempted\": 1\n}"
 }
 ```
 
 ### 3. Narração Personalizada
 
+**Endpoint**: `http://127.0.0.1:8000/narration`
+
+**Método**: `POST`
+
 **Entrada**: Estilo de narração (`Formal`, `Humorístico`, `Técnico`)
 
+**Requisição**:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/narration" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "match_id": 3869151,
+           "style": "Formal"
+         }'
+```
+
 **Saída**:
+
 - **Formal**:
   ```
-  "O time A garantiu a vitória sobre o time B com um placar de 3 a 1. João e Lucas marcaram os gols decisivos, enquanto Ana contribuiu com uma assistência importante."
+  "O time Argentina garantiu a vitória sobre o time Austrália com um placar de 2 a 0. Lionel Messi abriu o placar após uma assistência de Nicolás Otamendi, seguido por Julián Álvarez para selar o resultado. A equipe Austrália recebeu dois cartões amarelos, um para Jackson Irvine e outro para Miloš Degenek."
   ```
 - **Humorístico**:
   ```
-  "Que jogo! O time A deu um showzinho e venceu o time B por 3 a 1. João e Lucas foram os craques do momento, e Ana fez aquela assistência marota."
+  "Que partida emocionante! A Argentina levou a melhor sobre a Austrália com um placar de 2 a 0. Messi mostrou sua magia com um gol assistido por Otamendi, e Álvarez fechou o show. Enquanto isso, a Austrália teve que sair com duas estrelinhas amarelas para Irvine e Degenek. Melhor sorte na próxima!"
   ```
 - **Técnico**:
   ```
-  "Na partida, o time A dominou a posse de bola e finalizou 15 vezes, resultando em 3 gols de João e Lucas. Ana foi crucial na criação das jogadas, fornecendo uma assistência chave. O time B conseguiu reduzir para 1, mas não foi suficiente para mudar o resultado final."
+  "Na partida, a Argentina demonstrou superioridade tática, conseguindo um 2 a 0 contra a Austrália. Lionel Messi finalizou após uma construção de jogada eficaz envolvendo Nicolás Otamendi. Julián Álvarez ampliou a vantagem com precisão nas finalizações. A Austrália enfrentou dificuldades defensivas, resultando em dois cartões amarelos para Jackson Irvine e Miloš Degenek."
   ```
+
+## Detalhamento dos Exemplos
+
+### Sumarização de Partida
+
+- **Descrição**: Este endpoint gera um resumo textual dos principais eventos de uma partida específica.
+- **Uso**: Envie o ID da partida para obter uma visão geral dos resultados, gols, assistências e cartões.
+
+### Perfil de Jogador
+
+- **Descrição**: Este endpoint fornece estatísticas detalhadas de um jogador específico em uma partida.
+- **Uso**: Envie o ID da partida e o nome do jogador para obter métricas como passes completados, finalizações, desarmes, entre outros.
+
+### Narração Personalizada
+
+- **Descrição**: Este endpoint gera uma narrativa da partida no estilo escolhido pelo usuário.
+- **Uso**: Envie o ID da partida e o estilo de narração desejado (`Formal`, `Humorístico`, `Técnico`) para obter uma descrição personalizada dos eventos da partida.
+
+### Explicações Adicionais
+
+- **Formato das Requisições**: Utilizamos o método `POST` para enviar dados no corpo da requisição, garantindo a flexibilidade e segurança no envio de informações.
+- **Respostas Estruturadas**: As respostas são retornadas em formato JSON, facilitando a integração com diferentes front-ends e ferramentas de análise.
+- **Narração Personalizada**: Oferece diferentes estilos de descrição para atender às preferências dos usuários, tornando a experiência mais envolvente e adaptável.
 
 ## Contribuição
 
