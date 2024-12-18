@@ -146,6 +146,7 @@ def run():
                             "match_name": selected_match,
                             "input": user_input,
                             "agent_scratchpad": "",
+                            # "players_name": "",
                             "competition_id": competition_id,
                             "season_id": season_id,
                             "tool_names": tool_names,
@@ -156,7 +157,11 @@ def run():
                         # st.write(f"Input to agent: {input_data}")
 
                         # Invoke agent
-                        response = agent.invoke(input=input_data, handle_parsing_errors=True)
+                        try:
+                            response = agent.invoke(input=input_data, handle_parsing_errors=True)
+                        except Exception as e:
+                            st.code(f"Error invoking the agent: {str(e)}")
+                            st.stop()
 
                         # Validate response
                         if isinstance(response, dict) and "output" in response:

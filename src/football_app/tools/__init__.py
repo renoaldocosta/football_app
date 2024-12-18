@@ -7,7 +7,7 @@ from langchain_community.tools.wikipedia.tool import WikipediaQueryRun
 import yaml
 
 from .self_ask_agent import get_self_ask_agent, search_team_information
-from tools.football import get_specialist_comments, retrieve_match_details, top_players_by_pass
+from tools.football import get_specialist_comments, retrieve_match_details, top_players_by_pass, get_players_stats
 from langchain.tools import tool
 
 
@@ -39,6 +39,7 @@ def load_tools(tool_names: List[str] = []) -> Dict[str, Tool]:
         # get_match_details,
         # get_specialist_comments, 
         top_players_by_pass,
+        get_players_stats,
         Tool.from_function(name='Self-ask agent',
                            func=get_self_ask_agent().invoke,
                            description="A tool to answer complicated questions.  "
