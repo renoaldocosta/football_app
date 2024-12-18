@@ -17,6 +17,11 @@ from football_stats.matches import get_lineups
 # src\football_app\football_stats\matches.py
 load_dotenv()
 
+class PlayerStatsError(Exception):
+    """Custom exception for player statistics errors."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
 
 @tool
 def get_match_details(action_input:str) -> str:
@@ -54,6 +59,93 @@ def get_all_action_types(match_id):
     # return list(action_types)  # Retorna como lista
     return message
     
+
+
+def to_yaml(data: dict) -> str:
+    """
+    Converts a dictionary to a formatted YAML string.
+
+    Args:
+        data (dict): The data to convert to YAML.
+
+    Returns:
+        str: A YAML-formatted string.
+    """
+    return yaml.dump(data, sort_keys=False, default_flow_style=False, allow_unicode=True)
+
+@tool
+def get_players_stats(action_input: str) -> str:
+    """
+    Retrieves consolidated statistics for specific players in a match and returns them in YAML format.
+
+    Args:
+        action_input (str): A JSON-formatted string containing the match_id and a list of players' names.
+            Expected format:
+            {
+                "match_id": 3869151,
+                "players_name": ["Mathew Leckie", "Nahuel Molina Lucero"]
+            }
+
+    Returns:
+        str: A YAML-formatted string containing the consolidated statistics for each player.
+
+    Raises:
+        PlayerStatsError: If there is an issue with fetching or processing the player statistics.
+    """
+    try:
+        # Parse the JSON input
+        input_data = json.loads(action_input)
+        match_id = input_data["match_id"]
+        players_name = input_data["players_name"]
+    except (json.JSONDecodeError, KeyError) as e:
+        raise PlayerStatsError("Invalid input format. Expected JSON with 'match_id' and 'players_name'.")
+
+    stats_players = {}
+    for player_name in players_name:
+        try:
+            # Load match events
+            events = sb.events(match_id=match_id)
+            
+            # Validate if events were loaded
+            if events.empty:
+                raise PlayerStatsError(f"No events found for the match with ID {match_id}.")
+
+            # Filter events for the specific player
+            player_events = events[events['player'] == player_name]
+            
+            # Check if the player is present in the events
+            if player_events.empty:
+                raise PlayerStatsError(f"No events found for player '{player_name}' in match {match_id}.")
+
+            # Consolidate statistics
+            stats = {
+                "passes_completed": int(player_events[(player_events['type'] == 'Pass') & (player_events['pass_outcome'].isna())].shape[0]),
+                "passes_attempted": int(player_events[player_events['type'] == 'Pass'].shape[0]),
+                "shots": int(player_events[player_events['type'] == 'Shot'].shape[0]),
+                "shots_on_target": int(player_events[(player_events['type'] == 'Shot') & (player_events['shot_outcome'] == 'On Target')].shape[0]),
+                "fouls_committed": int(player_events[player_events['type'] == 'Foul Committed'].shape[0]),
+                "fouls_won": int(player_events[player_events['type'] == 'Foul Won'].shape[0]),
+                "tackles": int(player_events[player_events['type'] == 'Tackle'].shape[0]),
+                "interceptions": int(player_events[player_events['type'] == 'Interception'].shape[0]),
+                "dribbles_successful": int(player_events[(player_events['type'] == 'Dribble') & (player_events['dribble_outcome'] == 'Complete')].shape[0]),
+                "dribbles_attempted": int(player_events[player_events['type'] == 'Dribble'].shape[0]),
+            }
+            
+        except PlayerStatsError as e:
+            # Propagate the custom error message
+            raise PlayerStatsError(e.message)
+        except Exception as e:
+            # Handle any other unexpected errors
+            raise PlayerStatsError(f"An unexpected error occurred: {str(e)}")
+        
+        # Add the player's statistics to the main dictionary
+        stats_players[player_name] = stats
+
+    # Convert the complete dictionary to YAML
+    return to_yaml(stats_players)
+
+
+
 
 @tool
 def top_players_by_pass(action_input: str) -> str:
