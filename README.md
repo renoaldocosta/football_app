@@ -1,4 +1,3 @@
-```markdown
 # Football Match Analysis App
 
 ## Descrição do Projeto
@@ -179,9 +178,3 @@ Sinta-se à vontade para contribuir com este projeto! Abra issues e faça pull r
 ## Licença
 
 Este projeto está licenciado sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## Contato
-
-Para mais informações, entre em contato com [seu-email@example.com](mailto:seu-email@example.com).
-
-```
