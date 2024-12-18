@@ -1,4 +1,3 @@
-```markdown
 # Football Match Analysis App
 
 ## Descrição do Projeto
