@@ -34,9 +34,6 @@ def load_tools(tool_names: List[str] = []) -> Dict[str, Tool]:
     Load the tools with the given tool names
     """
     TOOLS = [
-        # search_team_information,
-        # get_match_details,
-        # get_specialist_comments,
         top_players_by_pass,
         get_players_stats,
         get_players_stats_by_period,
