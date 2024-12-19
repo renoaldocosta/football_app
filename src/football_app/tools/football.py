@@ -20,11 +20,6 @@ from football_stats.matches import get_lineups
 # src\football_app\football_stats\matches.py
 load_dotenv()
 
-# class PlayerStatsError(Exception):
-#     """Custom exception for player statistics errors."""
-#     def __init__(self, message: str):
-#         super().__init__(message)
-#         self.message = message
 
 @tool
 def get_match_details(action_input:str) -> str:
@@ -40,6 +35,7 @@ def get_match_details(action_input:str) -> str:
             }
     """
     return yaml.dump(retrieve_match_details(action_input))
+
 
 def get_all_action_types(match_id):
     raw_data = sb.events(match_id=match_id, fmt="dict")
@@ -67,11 +63,6 @@ class GetPlayersStatsInput(BaseModel):
     match_id: str
     players_name: List[str]
 
-# class PlayerStatsError(Exception):
-#     """Custom exception for player statistics errors."""
-#     def __init__(self, message: str):
-#         super().__init__(message)
-#         self.message = message
 
 def to_yaml(data: dict) -> str:
     """
@@ -84,6 +75,7 @@ def to_yaml(data: dict) -> str:
         str: Uma string formatada em YAML.
     """
     return yaml.dump(data, sort_keys=False, default_flow_style=False, allow_unicode=True)
+
 
 # Custom exception for player statistics errors
 class PlayerStatsError(Exception):
@@ -398,89 +390,6 @@ def top_players_by_pass(action_input: str) -> str:
     return message
 
 
-# class TopPlayersByActionTool(BaseTool):
-#     name = "top_players_by_action"
-#     description = "Retorna os jogadores com mais ações de um tipo específico em uma partida."
-
-#     def _run(self, tool_input: str):
-#         # Parse o input, por exemplo, usando JSON
-#         import json
-#         params = json.loads(tool_input)
-#         match_id = params.get("match_id")
-#         action_type_filter = params.get("action_type_filter")
-        
-#         # Aqui você incluiria a lógica da sua função original
-#         raw_data = sb.events(match_id=match_id, fmt="dict")
-#         player_action_count = defaultdict(int)
-        
-#         for key in raw_data.keys():
-#             dicionario = raw_data[key]
-#             try:
-#                 player_name = dicionario["player"]["name"]
-#                 action_type = dicionario["type"]["name"]
-
-#                 if action_type == action_type_filter:
-#                     player_action_count[player_name] += 1
-#             except KeyError:
-#                 pass
-
-#         max_actions = max(player_action_count.values(), default=0)
-#         top_players = [player for player, count in player_action_count.items() if count == max_actions]
-
-#         message = f"Jogadores com mais ações do tipo '{action_type_filter}':"
-#         for player in top_players:
-#             message += f"\nJogador: {player} | Quantidade de Ações: {max_actions}"
-#         return message
-
-#     async def _arun(self, tool_input: str):
-#         raise NotImplementedError("Este método não está implementado.")
-
-
-
-# Função para retornar jogadores com mais ações de um tipo específico
-# @tool
-# def top_players_by_action(match_id, action_type_filter):
-#     """
-#     Retorna os jogadores com mais ações de um determinado tipo em uma partida.
-#     Args:
-#         match_id (int): O ID da partida.
-#         action_type_filter (str): O tipo de ação a ser filtrada (por exemplo, "Pass", "Shot").
-#     Returns:
-#         str: Uma mensagem contendo os jogadores com mais ações do tipo especificado e a quantidade de ações.
-#     Exceções:
-#         KeyError: Ignora dados incompletos que não possuem as chaves esperadas.
-#     """
-    
-#     raw_data = sb.events(match_id=match_id, fmt="dict")
-    
-#     # Dicionário para contar as ações por jogador
-#     player_action_count = defaultdict(int)
-
-#     # Iterar pelos dados e filtrar pelo tipo de jogada
-#     for key in raw_data.keys():
-#         dicionario = raw_data[key]
-#         try:
-#             player_name = dicionario["player"]["name"]
-#             action_type = dicionario["type"]["name"]
-
-#             # Verifica se o tipo de jogada corresponde ao filtro
-#             if action_type == action_type_filter:
-#                 player_action_count[player_name] += 1
-#         except KeyError:
-#             pass  # Ignora dados incompletos
-
-#     # Encontrar a maior contagem de ações
-#     max_actions = max(player_action_count.values(), default=0)
-
-#     # Filtrar jogadores com a contagem máxima
-#     top_players = [player for player, count in player_action_count.items() if count == max_actions]
-
-#     message = ""
-#     # return list(action_types)  # Retorna como lista
-#     message = f"Jogadores com mais ações do tipo '{action_type_filter}':"
-#     for player in top_players:
-#         message += f"\nJogador: {player} | Quantidade de Ações: {max_actions}"
-#     return message
 
 # Função para obter o prompt baseado no estilo escolhido
 def get_prompt(style):
@@ -520,13 +429,6 @@ def get_match_summary(match_id):
     goals_yaml = yaml.dump(goal_list)
     cards_yaml = yaml.dump(list_cartoes)
 
-
-    # with open(game_overview_path, 'r') as f:
-    #     game_overview = f.read()
-    # with open(goals_path, 'r', encoding='UTF-8') as f:
-    #     goals = f.read()
-    # with open(cards_path, 'r') as f:
-    #     cards = f.read()
 
     prompt = f"""
     You are a sports commentator with expertise in football (soccer). Respond as
@@ -662,37 +564,6 @@ def get_sport_specialist_comments_about_match(match_details: str, line_ups: str,
     
     line_ups = filter_starting_xi(line_ups)
     
-    # agent_prompt = """
-    # You are a sports commentator with expertise in football (soccer). Respond as
-    # if you are delivering an engaging analysis for a TV audience. Here is the
-    # information to include:
-
-    # Instructions:
-    # 1. Game Overview:
-    #     - Describe the importance of the game (league match, knockout, rivalry, etc.).
-    #     - Specify when and where the game took place.
-    #     - Provide the final result.
-    # 3. Analysis of the Starting XI:
-    #     - Evaluate the starting lineups for both teams.
-    #     - Highlight key players and their roles.
-    #     - Mention any surprising decisions or notable absences.
-    # 3.  Contextual Insights:
-    #     - Explain the broader implications of the match (rivalry, league standings, or storylines).
-    # 4. Engaging Delivery:
-    #     - Use a lively, professional, and insightful tone, making the commentary
-    #     appealing to fans of all knowledge levels.
-    
-    # The match details are provided by the provided as follow: 
-    # {match_details}
-    
-    # The team lineups are provided here:
-    # {lineups}
-    
-    # Provide the expert commentary on the match as you are in a sports broadcast.
-    # Start your analysis now and engage the audience with your insights.
-    
-    # Say: "Hello everyone, I've watched to the match between [Home Team] and [Away Team]..."
-    # """
     agent_prompt = get_prompt(prompt_style)
     
     llm = GoogleGenerativeAI(model="gemini-pro")
